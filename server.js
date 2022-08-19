@@ -17,8 +17,8 @@ app.use(express.json()); /* bodyParser.json() is deprecated */
 app.use(express.urlencoded({ extended: true })); /* bodyParser.urlencoded() is deprecated */
 
 // simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to HOL back-end application." });
+app.get("/api", (req, res) => {
+  res.json({ message: "Welcome to HOL back-end Rest API." });
 });
 
 require("./app/routes/routes.js")(app);
