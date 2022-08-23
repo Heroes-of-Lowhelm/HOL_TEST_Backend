@@ -1,19 +1,27 @@
-const speakeasy = require("speakeasy");
-const uuid = require("uuid")
+const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
+const {sendVerificationEmail} = require("../services/verificationService");
 
 
-exports.register = (req, res) => {
-    const id = uuid.v4();
+exports.register = async (req, res) => {
     try {
-        const path = `/user/${id}`;
-        // Create temporary secret until it is verified
-        const temp_secret = speakeasy.generateSecret();
+        let { username, password, email } = req.body;
+        console.log(req.body);
+        console.log(username, password, email);
+        //password encryption
+        password = bcrypt.hashSync(password, 10);
+
+        //verification code generation
+        const verificationCode = Math.floor(100000 + Math.random() * 900000);
         // Create user in the database
         const user = new User({
-            id: id,
-            secret: temp_secret.base32
+            username,
+            password,
+            mail: email,
+            is_google: false,
+            is_verified: false
         })
+
         User.create(user, (err, data) => {
             if (err)
                 res.status(500).send({
@@ -21,8 +29,14 @@ exports.register = (req, res) => {
                         err.message || "Some error occurred while creating new user."
                 });
         })
+
+        // Send verification code to the user's email
+        await sendVerificationEmail(email, verificationCode);
+        
         // Send user id and base32 key to user
-        res.json({id, secret: temp_secret.base32});
+        res.status(200).send({
+            message: `You have Registered Successfully, Verification code sent to: ${email}`
+        })
     } catch (e) {
         console.log(e);
         res.status(500).json({

@@ -2,9 +2,11 @@ const sql = require("./db.js");
 
 // constructor
 const User = function(user) {
-  this.id = user.id;
-  this.secret = user.secret;
-  this.name = user.name;
+  this.password = user.password;
+  this.username = user.username;
+  this.mail = user.mail;
+  this.is_google = user.is_google;
+  this.is_verified = user.is_verified;
 };
 
 User.create = (newUser, result) => {
@@ -19,6 +21,30 @@ User.create = (newUser, result) => {
     result(null, { ...newUser });
   });
 };
+
+User.activateById = (id, result) => {
+  sql.query(
+      "UPDATE users SET is_verified = ? WHERE id = ?",
+      [true, id],
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          result(null, err);
+          return;
+        }
+
+        if (res.affectedRows == 0) {
+          // not found users with the id
+          result({ kind: "not_found" }, null);
+          return;
+        }
+
+        console.log("updated user: ", { id: id });
+        result(null, { id: id });
+      }
+  );
+};
+
 /*
 
 Tutorial.findById = (id, result) => {

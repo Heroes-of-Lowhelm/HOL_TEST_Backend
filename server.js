@@ -1,5 +1,6 @@
+require('dotenv').config()
 const express = require("express");
-// const bodyParser = require("body-parser"); /* deprecated */
+const bodyParser = require("body-parser"); /* deprecated */
 const cors = require("cors");
 
 const app = express();
@@ -11,10 +12,10 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
-app.use(express.json()); /* bodyParser.json() is deprecated */
+app.use(bodyParser.json()); /* bodyParser.json() is deprecated */
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true })); /* bodyParser.urlencoded() is deprecated */
+app.use(bodyParser.urlencoded({ extended: true })); /* bodyParser.urlencoded() is deprecated */
 
 // simple route
 app.get("/api", (req, res) => {
@@ -24,7 +25,7 @@ app.get("/api", (req, res) => {
 require("./app/routes/routes.js")(app);
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.SERVER_PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
