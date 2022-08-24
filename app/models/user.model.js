@@ -22,27 +22,46 @@ User.create = (newUser, result) => {
   });
 };
 
-User.activateById = (id, result) => {
+User.activateByMail = (mail, result) => {
   sql.query(
-      "UPDATE users SET is_verified = ? WHERE id = ?",
-      [true, id],
+      "UPDATE users SET is_verified = ? WHERE mail = ?",
+      [true, mail],
       (err, res) => {
         if (err) {
           console.log("error: ", err);
-          result(null, err);
+          result(err, null);
           return;
         }
 
         if (res.affectedRows == 0) {
-          // not found users with the id
+          // not found users with the mail
           result({ kind: "not_found" }, null);
           return;
         }
 
-        console.log("updated user: ", { id: id });
-        result(null, { id: id });
+        console.log("activated user: ", { mail: mail });
+        result(null, { mail: mail });
       }
   );
+};
+
+User.findByMail = (mail, result) => {
+    sql.query(`SELECT * FROM users WHERE mail = "${mail}"`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+
+        if (res.length) {
+            console.log("found user: ", res[0]);
+            result(null, res[0]);
+            return;
+        }
+
+        // not found code with the user id
+        result({ kind: "not_found" }, null);
+    });
 };
 
 /*
